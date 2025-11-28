@@ -65,35 +65,34 @@ function draw() {
 }
 
 function mousePressed() {
-    hideOverlay();   // <<< fade the overlay on FIRST click
-    
+  hideOverlay();   // fade overlay right away
+
   // 🔊 unlock audio context on first click
   if (getAudioContext().state !== "running") {
     userStartAudio();
   }
+  // 1) Immediate feedback: note + flower
+  playRandomNote();        // from Sound.js
 
-  // start ambient + play a note (from Sound.js)
-  startAmbientMusic();
-  playRandomNote();
-
-  // Reset flowers & background every 10 flowers
-  if (flowersInBatch >= 10) {
-    lotuses = [];
-    flowersInBatch = 0;
-    bgColor = lerpColor(bgStart, bgEnd, random());
-  }
-
-  // Create a new lotus at mouse position with random size
+  // Create a new lotus at mouse position
   let s = min(width, height) / 600.0;
   let centerRadius = random(30, 40) * s;
   let newLotus = new Lotus(mouseX, mouseY, centerRadius);
   lotuses.push(newLotus);
 
   flowersInBatch++;
+  if (flowersInBatch >= 10) {
+    lotuses = [];
+    flowersInBatch = 0;
+    bgColor = lerpColor(bgStart, bgEnd, random());
+  }
 
-  // Change Bloom text font on each click
+  // change text font + color
   currentFont = random(fontNames);
-
-  // Change Bloom text color on each click
   pickBloomTextColor();
+
+  // 2) Start ambient slightly later so it doesn't block UI
+  setTimeout(() => {
+    startAmbientMusic();   // from Sound.js
+  }, 300); // 300–500 ms feels good
 }
